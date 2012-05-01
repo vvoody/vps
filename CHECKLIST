@@ -1,0 +1,9 @@
+* skel/ -> ~(.bashrc, .vimrc, etc.)
+* slackpkg mirror
+* installpkg gnupg
+* installpkg sbopkg & sync
+* slackpkg install-template
+* slackpkg update & upgrade-all
+* timeconfig(UTC)
+* ntp
+* security/CHECKLIST.sec
