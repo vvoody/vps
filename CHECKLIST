@@ -1,4 +1,4 @@
-* skel/ -> ~(.bashrc, .vimrc, etc.)
+* cp -rTu skel/ /home/USER
 * slackpkg mirror
 * installpkg gnupg
 * installpkg sbopkg & sync
