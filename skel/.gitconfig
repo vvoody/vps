@@ -1,0 +1,9 @@
+[alias]
+    co     = checkout
+    ci     = commit
+    l      = log --stat
+    b      = branch
+    st     = status
+    sh     = show
+[diff]
+	color = auto
