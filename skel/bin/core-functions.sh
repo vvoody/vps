@@ -2,6 +2,7 @@
 
 # pkgbase() and package_name() are from Slackware pkgtools package.
 # cutpkg() are from slackpkg source code, much faster then above.
+# cutpkg function requires slackpkg package.
 
 # Got the name of a package, without version-arch-release data
 #
