@@ -10,3 +10,4 @@
 
 * vps-login-notifier.py(chmod +x, chmod 700)
 * no add "." to PATH(/etc/profile)
+* locale -> en_US.UTF-8
