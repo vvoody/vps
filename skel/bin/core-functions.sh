@@ -77,7 +77,7 @@ function list_installed_pkgs() {
     done
 }
 
-# memory usage per process & sorted
+# memory usage per process & sorted(desc)
 function mu() {
-    ps -eo size,pid,user,command --sort -size | awk '{ hr=$1/1024 ; printf("%13.2f Mb ",hr) } { for ( x=4 ; x<=NF ; x++ ) { printf("%s ",$x) } print "" }'
+    ps -eo size,pid,user,command --sort -size | awk '{ hr=$1/1024 ; printf("%13.2f Mb ",hr) } { for ( x=4 ; x<=NF ; x++ ) { printf("%s ",$x) } print "" }' | sort -n -k 1
 }
