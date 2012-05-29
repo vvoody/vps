@@ -76,3 +76,8 @@ function list_installed_pkgs() {
         echo $(cutpkg $(basename $p))
     done
 }
+
+# memory usage per process & sorted
+function mu() {
+    ps -eo size,pid,user,command --sort -size | awk '{ hr=$1/1024 ; printf("%13.2f Mb ",hr) } { for ( x=4 ; x<=NF ; x++ ) { printf("%s ",$x) } print "" }'
+}
