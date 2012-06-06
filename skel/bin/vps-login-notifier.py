@@ -69,7 +69,7 @@ if __name__ == "__main__":
     msg_body = "%s\nhttp://whatismyipaddress.com/ip/%s" % (ssh_info, login_ip)
     msg = make_msg(me['LOGIN'],
                    toaddrs,
-                   'VPS Login Notification',
+                   'VPS Login Notification - %s' % os.environ['HOSTNAME'],
                    msg_body)
 
     try:
