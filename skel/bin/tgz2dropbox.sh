@@ -18,13 +18,32 @@
 DROPBOX_UPLOADER=~/bin/dropbox_uploader.sh
 REMOTE_DIR=slackware/slackware-$(cat /etc/slackware-version | cut -d' ' -f2)/$(uname -m)
 
+# Thanks these colorful codes of github.com/authy-ssh
+export TERM="xterm-256color"
+NORMAL=$(tput sgr0)
+GREEN=$(tput setaf 2; tput bold)
+YELLOW=$(tput setaf 3)
+RED=$(tput setaf 1)
+
+function red() {
+   echo -ne "$RED$*$NORMAL"
+}
+
+function green() {
+   echo -ne "$GREEN$*$NORMAL"
+}
+
+function yellow() {
+   echo -ne "$YELLOW$*$NORMAL"
+}
+
 #
 function die() {
     echo "$@"
     exit 1
 }
 
-# 
+#
 function init_dir() {
     echo
 }
@@ -62,7 +81,7 @@ function make_local_checksums() {
 
 function list_files_to_be_uploaded() {
     # first 4 lines of diff are no use
-    diff -u <(get_remote_checksums) <(make_local_checksums) | tail -n +5 | egrep '^+'  | awk '{print $2}'
+    diff -u <(get_remote_checksums) <(make_local_checksums) | tail -n +5 | egrep '^\+'  | awk '{print $2}'
 }
 
 # Usage: $0 to_be_uploaded_dir/
@@ -73,10 +92,18 @@ if [ $# -eq 1 ]; then
         cd "$1"
         while read line; do
             REMOTE_FILE=${line#./}
-            echo $DROPBOX_UPLOADER upload "$line" "$REMOTE_DIR"/"$REMOTE_FILE"
+            if [ -v DEBUG ]; then
+                echo -n $DROPBOX_UPLOADER
+                green " upload"
+                yellow " $line"
+                echo -n " ${REMOTE_DIR}/"
+                yellow "$REMOTE_FILE"
+                echo
+            else
+                $DROPBOX_UPLOADER upload "$line" "$REMOTE_DIR"/"$REMOTE_FILE"
+            fi
         done < <(list_files_to_be_uploaded)
-        make_local_checksums > CHECKSUMS.md5
-        DROPBOX_UPLOADER upload CHECKSUMS.md5 $REMOTE_DIR/CHECKSUMS.md5
+        $DROPBOX_UPLOADER upload CHECKSUMS.md5 $REMOTE_DIR/CHECKSUMS.md5
         pushd $CWD >/dev/null
     else
         die "no such directory! at line $LINENO."
