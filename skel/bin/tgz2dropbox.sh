@@ -66,9 +66,8 @@ function get_remote_checksums() {
     if [ $? -eq 0 ]; then
         cat $TMPFILE
     else
-        # 'echo -n' will truncate first line
+        # first time upload, no remote files.
         cat <<EOF
-
 EOF
     fi
 }
@@ -80,8 +79,9 @@ function make_local_checksums() {
 }
 
 function list_files_to_be_uploaded() {
-    # first 4 lines of diff are no use
-    diff -u <(get_remote_checksums) <(make_local_checksums) | tail -n +5 | egrep '^\+'  | awk '{print $2}'
+    # only match lines like '+f91ee911b8d5ca5f42b9a3fc6ff6c570  ./sb/jdk-7u7-x86_64-1.txz'
+    # and ignore CHECKSUMS.md5
+    diff -u <(get_remote_checksums) <(make_local_checksums) | egrep -i '^\+[a-z0-9]'  | awk '{print $2}' | grep -v "CHECKSUMS.md5"
 }
 
 # Usage: $0 to_be_uploaded_dir/
@@ -103,6 +103,7 @@ if [ $# -eq 1 ]; then
                 $DROPBOX_UPLOADER upload "$line" "$REMOTE_DIR"/"$REMOTE_FILE"
             fi
         done < <(list_files_to_be_uploaded)
+        make_local_checksums > CHECKSUMS.md5
         $DROPBOX_UPLOADER upload CHECKSUMS.md5 $REMOTE_DIR/CHECKSUMS.md5
         pushd $CWD >/dev/null
     else
