@@ -17,6 +17,8 @@
 
 DROPBOX_UPLOADER=~/bin/dropbox_uploader.sh
 REMOTE_DIR=slackware/slackware-$(cat /etc/slackware-version | cut -d' ' -f2)/$(uname -m)
+CHKREMOTE=/tmp/CHECKSUMS.md5.remote
+chmod 600 $CHKREMOTE
 
 # Thanks these colorful codes of github.com/authy-ssh
 export TERM="xterm-256color"
@@ -61,10 +63,10 @@ function get_slackware_version() {
 # uploading a local to remote or not depends on diff between local
 # checksums and remote's.
 function get_remote_checksums() {
-    TMPFILE=/tmp/tgz2dropbox.tmp
-    $DROPBOX_UPLOADER download $REMOTE_DIR/CHECKSUMS.md5 $TMPFILE &>/dev/null
+    $DROPBOX_UPLOADER download $REMOTE_DIR/CHECKSUMS.md5 $CHKREMOTE &>/dev/null
+    # leave a bug here. Failure was caused by other reasons, not non-existed.
     if [ $? -eq 0 ]; then
-        cat $TMPFILE
+        cat $CHKREMOTE
     else
         # first time upload, no remote files.
         cat <<EOF
@@ -72,6 +74,7 @@ EOF
     fi
 }
 
+# find . -name ".git" -prune -o -type f -o -type l
 # find . -type f -print0 | xargs -0 md5sum
 # find . -name ".git" -prune -o -print0 | xargs -0 md5sum 2>/dev/null
 function make_local_checksums() {
@@ -81,7 +84,7 @@ function make_local_checksums() {
 function list_files_to_be_uploaded() {
     # only match lines like '+f91ee911b8d5ca5f42b9a3fc6ff6c570  ./sb/jdk-7u7-x86_64-1.txz'
     # and ignore CHECKSUMS.md5
-    diff -u <(get_remote_checksums) <(make_local_checksums) | egrep -i '^\+[a-z0-9]'  | awk '{print $2}' | grep -v "CHECKSUMS.md5"
+    diff -u <(get_remote_checksums) <(make_local_checksums) | egrep -i '^\+[a-z0-9]' | grep -v "CHECKSUMS.md5"
 }
 
 # Usage: $0 to_be_uploaded_dir/
@@ -90,21 +93,35 @@ if [ $# -eq 1 ]; then
         CWD=$(pwd)
         pushd $CWD >/dev/null
         cd "$1"
-        while read line; do
-            REMOTE_FILE=${line#./}
+        while read x local_file ; do     # line looks like '+f91ee911b8d5ca5f42b9a3fc6ff6c570  ./jdk-7u7-x86_64-1.txz'
+            MD5=${x:1}          # skip leading '+' char
+            REMOTE_FILE=${local_file#./}
             if [ -v DEBUG ]; then
                 echo -n $DROPBOX_UPLOADER
                 green " upload"
-                yellow " $line"
+                yellow " $local_file"
                 echo -n " ${REMOTE_DIR}/"
                 yellow "$REMOTE_FILE"
                 echo
             else
-                $DROPBOX_UPLOADER upload "$line" "$REMOTE_DIR"/"$REMOTE_FILE"
+                $DROPBOX_UPLOADER upload "$local_file" "$REMOTE_DIR"/"$REMOTE_FILE"
+                # add new checksums in local to CHECKSUMS.md5, this makes multiple repos co-exist.
+                if [ $? -eq 0 ]; then
+                    echo "$MD5  $local_file" >> $CHKREMOTE
+                fi
             fi
+            GOTNEW=yes
         done < <(list_files_to_be_uploaded)
-        make_local_checksums > CHECKSUMS.md5
-        $DROPBOX_UPLOADER upload CHECKSUMS.md5 $REMOTE_DIR/CHECKSUMS.md5
+
+        if [ -v GOTNEW ]; then
+            echo "Updating CHECKSUMS.md5..."
+            # upload updated CHECKSUMS.md5 to remote
+            cat $CHKREMOTE | sort -k 2 -t ' ' | tee $CHKREMOTE >/dev/null
+            $DROPBOX_UPLOADER upload $CHKREMOTE $REMOTE_DIR/CHECKSUMS.md5
+        else
+            echo "Nothing new, did nothing."
+        fi
+        echo "Done."
         pushd $CWD >/dev/null
     else
         die "no such directory! at line $LINENO."
