@@ -18,6 +18,8 @@
 DROPBOX_UPLOADER=~/bin/dropbox_uploader.sh
 REMOTE_DIR=slackware/slackware-$(cat /etc/slackware-version | cut -d' ' -f2)/$(uname -m)
 CHKREMOTE=/tmp/CHECKSUMS.md5.remote
+DEBUG=no
+GOTNEW=no
 
 # Thanks these colorful codes of github.com/authy-ssh
 export TERM="xterm-256color"
@@ -96,7 +98,7 @@ if [ $# -eq 1 ]; then
         while read x local_file ; do     # line looks like '+f91ee911b8d5ca5f42b9a3fc6ff6c570  ./jdk-7u7-x86_64-1.txz'
             MD5=${x:1}          # skip leading '+' char
             REMOTE_FILE=${local_file#./}
-            if [ -v DEBUG ]; then
+            if [ $DEBUG == "yes" ]; then
                 echo -n $DROPBOX_UPLOADER
                 green " upload"
                 yellow " $local_file"
@@ -113,7 +115,7 @@ if [ $# -eq 1 ]; then
             GOTNEW=yes
         done < <(list_files_to_be_uploaded)
 
-        if [ -v GOTNEW ]; then
+        if [ $GOTNEW == "yes" ]; then
             echo "Updating CHECKSUMS.md5..."
             # upload updated CHECKSUMS.md5 to remote
             cat $CHKREMOTE | sort -k 2 -t ' ' | tee $CHKREMOTE >/dev/null
