@@ -18,7 +18,6 @@
 DROPBOX_UPLOADER=~/bin/dropbox_uploader.sh
 REMOTE_DIR=slackware/slackware-$(cat /etc/slackware-version | cut -d' ' -f2)/$(uname -m)
 CHKREMOTE=/tmp/CHECKSUMS.md5.remote
-chmod 600 $CHKREMOTE
 
 # Thanks these colorful codes of github.com/authy-ssh
 export TERM="xterm-256color"
@@ -67,6 +66,7 @@ function get_remote_checksums() {
     # leave a bug here. Failure was caused by other reasons, not non-existed.
     if [ $? -eq 0 ]; then
         cat $CHKREMOTE
+        chmod 600 $CHKREMOTE
     else
         # first time upload, no remote files.
         cat <<EOF
