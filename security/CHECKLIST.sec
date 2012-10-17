@@ -1,5 +1,7 @@
 ssh:
 - PermitRootLogin no
+- PasswordAuthentication no
+- s/Port 22/Port xxx/
 - /etc/ssh_*_key* regenerate
 - ssh-copy-key
 
@@ -7,6 +9,9 @@ policy:
 - iptables
 - denyhosts
 - Google Authenticator
+
+misc:
+- chmod 600 /tmp/vps-login-notifier.log
 
 references:
 - http://goo.gl/7O6ch
