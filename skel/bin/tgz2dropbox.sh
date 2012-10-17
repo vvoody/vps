@@ -14,12 +14,33 @@
 # Requirements & Thanks:
 #   BASH Dropbox Uploader
 #   cURL
+#
+# CHECKSUMS.md5 and ChangeLog.txt are supposed to be only in the remote,
+# they should not be uploaded as a new or changed file in the local repo dir.
+# Everytime there is a change, this script will fetch 'ChangeLog.txt' from
+# remote and invoke an editor to give you a chance to add stuff into
+# 'ChangeLog.txt'
 
 DROPBOX_UPLOADER=~/bin/dropbox_uploader.sh
 REMOTE_DIR=slackware/slackware-$(cat /etc/slackware-version | cut -d' ' -f2)/$(uname -m)
 CHKREMOTE=/tmp/CHECKSUMS.md5.remote
 DEBUG=no
 GOTNEW=no
+EDITOR=${EDITOR:-/usr/bin/vim}
+
+
+function usage() {
+    cat <<EOF
+$0 <command> [<args>]
+
+COMMANDS
+         list [remote_dir]
+          get remote_file    # download to current dir, be careful, maybe override
+       update local_repo
+    changelog
+EOF
+}
+
 
 # Thanks these colorful codes of github.com/authy-ssh
 export TERM="xterm-256color"
@@ -89,9 +110,12 @@ function list_files_to_be_uploaded() {
     diff -u <(get_remote_checksums) <(make_local_checksums) | egrep -i '^\+[a-z0-9]' | grep -v "CHECKSUMS.md5"
 }
 
-# Usage: $0 to_be_uploaded_dir/
-if [ $# -eq 1 ]; then
-    if [ -d "$1" ]; then
+
+# upload changed or new files to remote,
+# not upload all file every time.
+function do_update() {
+    local_repo=$1    # dir contains slackware build files
+    if [ -d "$local_repo" ]; then
         CWD=$(pwd)
         pushd $CWD >/dev/null
         cd "$1"
@@ -120,6 +144,31 @@ if [ $# -eq 1 ]; then
             # upload updated CHECKSUMS.md5 to remote
             cat $CHKREMOTE | sort -k 2 -t ' ' | tee $CHKREMOTE >/dev/null
             $DROPBOX_UPLOADER upload $CHKREMOTE $REMOTE_DIR/CHECKSUMS.md5
+
+            # invoke text edit to write ChangeLog.txt
+            pushd /tmp
+            $DROPBOX_UPLOADER download $REMOTE_DIR/ChangeLog.txt
+            $EDITOR ChangeLog.txt
+            while (true); do
+                echo -n "Update ChangeLog.txt?(Y/n) "
+                read ANS
+
+                case $ANS in
+                    y|Y|"")
+                        $DROPBOX_UPLOADER upload /tmp/ChangeLog.txt
+                        echo rm -i /tmp/ChangeLog.txt
+                        break
+                        ;;
+                    n|N)
+                        echo "ChangeLog.txt is not uploaded."
+                        break
+                        ;;
+                    *)
+                        echo "Please answer 'y' or 'n'."
+                        ;;
+                esac
+            done
+            pushd
         else
             echo "Nothing new, did nothing."
         fi
@@ -128,6 +177,29 @@ if [ $# -eq 1 ]; then
     else
         die "no such directory! at line $LINENO."
     fi
-else
-    die "Please specify one target directory! at line $LINENO."
-fi
+}
+
+
+CMD=$1
+ARG=$2
+case $CMD in
+    list)
+        $DROPBOX_UPLOADER list $REMOTE_DIR/$ARG
+        ;;
+    get)
+        $DROPBOX_UPLOADER download $REMOTE_DIR/$ARG
+        ;;
+    update)
+        do_update $ARG
+        ;;
+    changelog)
+        pushd /tmp
+        $DROPBOX_UPLOADER download $REMOTE_DIR/ChangeLog.txt
+        less /tmp/ChangeLog.txt
+        rm -i /tmp/ChangeLog.txt
+        pushd
+        ;;
+    *)
+        usage
+        die "Please specify one target directory! at line $LINENO."
+esac
