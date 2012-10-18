@@ -36,6 +36,7 @@ $0 <command> [<args>]
 COMMANDS
          list [remote_dir]
           get remote_file    # download to current dir, be careful, maybe override
+          put local_file [remote_dir]
        update local_repo
     changelog
 EOF
@@ -182,12 +183,17 @@ function do_update() {
 
 CMD=$1
 ARG=$2
+ARG2=$3
 case $CMD in
     list)
         $DROPBOX_UPLOADER list $REMOTE_DIR/$ARG
         ;;
     get)
         $DROPBOX_UPLOADER download $REMOTE_DIR/$ARG
+        ;;
+    put)
+        lf=$(basename $ARG)
+        $DROPBOX_UPLOADER upload $lf $REMOTE_DIR/$lf
         ;;
     update)
         do_update $ARG
