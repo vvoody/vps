@@ -82,3 +82,31 @@ function list_installed_pkgs() {
 function mu() {
     ps -eo rss,pid,user,command --sort -rss | awk '{ hr=$1/1024 ; printf("%13.2f Mb ",hr) } { for ( x=4 ; x<=NF ; x++ ) { printf("%s ",$x) } print "" }' | sort -n -k 1
 }
+
+
+# show a list of all the currently loaded modules and all of their
+# parameters, including the current value of the parameter.
+# via https://wiki.archlinux.org/index.php/Kernel_modules#Bash_function_to_list_module_parameters
+function aa_mod_parameters ()
+{
+    N=/dev/null;
+    C=`tput op` O=$(echo -en "\n`tput setaf 2`>>> `tput op`");
+    for mod in $(cat /proc/modules|cut -d" " -f1);
+    do
+        md=/sys/module/$mod/parameters;
+        m=$mod;
+        d=`modinfo -d $m 2>$N | tr "\n" "\t"`;
+        echo -en "$O$m$C";
+        [[ ${#d} -gt 0 ]] && echo -n " - $d";
+        echo;
+        [[ ! -d $md ]] && continue;    # skip loaded modules which has not params
+
+        for mc in $(cd $md; echo *);
+        do
+            de=`modinfo -p $mod 2>$N | grep ^$mc 2>$N|sed "s/^$mc=//" 2>$N`;
+            echo -en "\t$mc=`cat $md/$mc 2>$N`";
+            [[ ${#de} -gt 1 ]] && echo -en " - $de";
+            echo;
+        done;
+    done
+}
