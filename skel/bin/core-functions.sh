@@ -95,7 +95,7 @@ function aa_mod_parameters ()
     do
         md=/sys/module/$mod/parameters;
         m=$mod;
-        d=`modinfo -d $m 2>$N | tr "\n" "\t"`;
+        d=`/sbin/modinfo -d $m 2>$N | tr "\n" "\t"`;
         echo -en "$O$m$C";
         [[ ${#d} -gt 0 ]] && echo -n " - $d";
         echo;
@@ -103,7 +103,7 @@ function aa_mod_parameters ()
 
         for mc in $(cd $md; echo *);
         do
-            de=`modinfo -p $mod 2>$N | grep ^$mc 2>$N|sed "s/^$mc=//" 2>$N`;
+            de=`/sbin/modinfo -p $mod 2>$N | grep ^$mc 2>$N|sed "s/^$mc=//" 2>$N`;
             echo -en "\t$mc=`cat $md/$mc 2>$N`";
             [[ ${#de} -gt 1 ]] && echo -en " - $de";
             echo;
