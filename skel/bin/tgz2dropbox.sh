@@ -156,7 +156,7 @@ function do_update() {
 
                 case $ANS in
                     y|Y|"")
-                        $DROPBOX_UPLOADER upload /tmp/ChangeLog.txt
+                        $DROPBOX_UPLOADER upload /tmp/ChangeLog.txt $REMOTE_DIR/ChangeLog.txt
                         echo rm -i /tmp/ChangeLog.txt
                         break
                         ;;
