@@ -12,6 +12,7 @@ policy:
 
 misc:
 - chmod 600 /tmp/vps-login-notifier.log
+- /etc/inetd.conf: disable time & atuh services
 
 references:
 - http://goo.gl/7O6ch
@@ -20,3 +21,4 @@ references:
 - http://www.webhostingtalk.com/showthread.php?t=468168
 - http://community.allsimple.net/Thread-tips-to-secure-your-vps-debian
 - http://www.opsers.org/base/ssh-security-methods-to-improve.html
+- http://www.lowendtalk.com/discussion/5508/best-practices-to-secure-your-website
