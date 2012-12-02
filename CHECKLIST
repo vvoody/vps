@@ -14,3 +14,16 @@
 
 * touch /var/log/wtmp && chown root.utmp
 * nginx(nginx.conf, logroate)
+
+ubuntu:
+- apt-get remove bind9* samba sendmail apache2-* sasl2*
+- apt-get update && apt-get upgrade
+- apt-get install git curl nmap
+- apt-get install apt-file && apt-file update
+- apt-get autoclean
+- apt-get autoremove
+- apt-get clean
+- dpkg-reconfigure openssh-server
+- cd /etc && git init
+- adduser vvoody
+- tzselect(UTC+0)
