@@ -13,6 +13,11 @@ policy:
 misc:
 - chmod 600 /tmp/vps-login-notifier.log
 - /etc/inetd.conf: disable time & atuh services
+- /etc/login.defs: ENCRYPT_METHOD (DES)->SHA512
+
+ubuntu:
+- /etc/pam.d/common-password:
+   password  [success=1 default=ignore]  pam_unix.so obscure *sha512*
 
 references:
 - http://goo.gl/7O6ch
