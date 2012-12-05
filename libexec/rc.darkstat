@@ -1,0 +1,73 @@
+#!/bin/sh
+
+# startup script for darkstat
+#
+# Copyright 2012 vvoody
+# Licensed under the WTFPL. See http://sam.zoy.org/wtfpl/ for details.
+#
+# *Be sure* your system have a user named 'darkstat' and
+# he owns /var/lib/darkstat/.
+
+DARKSTAT_BIN=/usr/sbin/darkstat
+DARKSTAT_CHROOT=/var/lib/darkstat             # everything in here
+DARKSTAT_PID=darkstat.pid
+DARKSTAT_IFACE=eth0
+DARKSTAT_USER=darkstat
+DARKSTAT_DAYLOG=darkstat-day.log
+DARKSTAT_DATABASE=darkstat.db
+DARKSTAT_BINDOPT="-b localhost"
+DARKSTAT_LOGOPT="--syslog"
+
+do_start() {
+    $DARKSTAT_BIN $DARKSTAT_LOGOPT \
+                  $DARKSTAT_BINDOPT \
+                  -i $DARKSTAT_IFACE \
+                  --chroot $DARKSTAT_CHROOT \
+                  --pidfile $DARKSTAT_PID \
+                  --user $DARKSTAT_USER \
+                  --daylog $DARKSTAT_DAYLOG \
+                  --import $DARKSTAT_DATABASE \
+                  --export $DARKSTAT_DATABASE
+    if [ $? -eq 0 ]; then
+        echo "Darkstat started(pid $(cat $DARKSTAT_CHROOT/$DARKSTAT_PID))."
+    else
+        echo "Darkstat start failed."
+        exit 1
+    fi
+}
+
+
+do_stop() {
+    kill $(cat $DARKSTAT_CHROOT/$DARKSTAT_PID)
+    if [ $? -eq 0 ]; then
+        echo "Darkstat stopped."
+    else
+        echo "Darkstat stop failed."
+        exit 1
+    fi
+}
+
+
+case "$1" in
+    start)
+        echo "Starting darkstat..."
+        do_start
+        ;;
+
+    stop)
+        echo "Stopping darkstat..."
+        do_stop
+        ;;
+
+    restart)
+        echo "Restarting darkstat..."
+        do_stop
+        sleep 2
+        do_start
+        ;;
+
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+esac
+
+exit 0
