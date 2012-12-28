@@ -1,0 +1,40 @@
+README for puppet/ folder
+
+Here contains Puppet's manifests and modules used to doing
+configuration jobs on multiple servers. Puppet 3 is used.
+
+* Layout
+
+#+BEGIN_SRC emacs-lisp
+puppet/
+├── README.org               # this file
+├── modules/                 # self-written or customized modules
+│    └── vvoody/             # each module should have at least following files
+│        ├── files/          # static files used by this module's manifests
+│        ├── lib/            #
+│        ├── manifests/      # all Puppet source codes at here
+│        │    └── init.pp    # contain a class definition named same as module's name
+│        ├── templates/      # ERB templates
+│        └── tests/          # tests & howtos
+└── manifests/
+     └── test.pp             # manifests can use modules above
+#+END_SRC
+
+* Install Puppet
+
+*Ubuntu 10.04:*
+ - apt-get install ruby rubygems1.8         # Ruby 1.8.7
+ - apt-get install libopenssl-ruby          # if not installed
+ - export PATH=$PATH:/var/lib/gems/1.8/bin
+
+*Ubuntu 12.04:*
+ - apt-get install ruby rubygems   # Ruby 1.8.7, precise only has 1.9.1
+                                   # which is not supported by Puppet 3
+
+*Then:*
+ - gem install puppet
+
+Ubuntu 10.04 and 12.04 don't have latest deb package for Puppet(3.0.1
+currently). Fortunately, they do both have Ruby 1.8.7 which is
+supported by Puppet 3, so command 'gem install ruby' can help us get
+latest Puppet.
