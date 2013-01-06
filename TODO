@@ -1,0 +1,2 @@
+- darkstat's log file should be rotated every month, which resets to zero
+  at the beginning of a new month.
