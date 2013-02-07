@@ -18,7 +18,7 @@
 ubuntu:
 - apt-get remove bind9* samba sendmail apache2-* sasl2*
 - apt-get update && apt-get upgrade
-- apt-get install git curl nmap
+- apt-get install git curl nmap screen
 - apt-get install apt-file && apt-file update
 - apt-get autoclean
 - apt-get autoremove
