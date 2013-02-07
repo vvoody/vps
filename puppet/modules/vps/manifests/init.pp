@@ -1,4 +1,4 @@
-# = Class: vvoody
+# = Class: vps
 #
 # This class is a dummy one.
 #
@@ -13,12 +13,12 @@
 #
 # == Sample Usage:
 #
-#   class { 'vvoody': }
+#   class { 'vps': }
 #
-#   include vvoody
+#   include vps
 #
-class vvoody ($enable = true) {
-  $file_name = '/tmp/puppet-module-vvoody.txt'
+class vps ($enable = true) {
+  $file_name = '/tmp/puppet-module-vps.txt'
   if $enable == true {
     file { $file_name:
       ensure  => present,
