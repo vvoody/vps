@@ -14,8 +14,13 @@ misc:
 - chmod 600 /tmp/vps-login-notifier.log
 - /etc/inetd.conf: disable time & atuh services
 - /etc/login.defs: ENCRYPT_METHOD (DES)->SHA512
+
+Nginx:
 - nginx.conf: server_tokens off;
+
+PHP:
 - php.ini: expose_php = Off
+- cgi.fix_pathinfo = 0
 
 ubuntu:
 - /etc/pam.d/common-password:
